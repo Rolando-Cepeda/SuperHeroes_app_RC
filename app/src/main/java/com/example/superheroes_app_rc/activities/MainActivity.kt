@@ -1,8 +1,11 @@
 package com.example.superheroes_app_rc.activities
 
 import android.os.Bundle
+import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.superheroes_app_rc.R
 import com.example.superheroes_app_rc.adapters.SuperheroAdapter
 import com.example.superheroes_app_rc.data.SuperheroApiService
 import com.example.superheroes_app_rc.databinding.ActivityMainBinding
@@ -31,6 +34,29 @@ class MainActivity : AppCompatActivity() {
 
 
         searchByName("a")
+    }
+
+    // Métodos que sirven para buscar desde el menú
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_activity_main, menu)
+
+        val searchViewItem = menu.findItem(R.id.menu_search)
+        val searchView = searchViewItem.actionView as SearchView
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (query != null) {
+                    searchByName(query)
+            }
+            return true
+        }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
+
+        return true
     }
 
     private fun searchByName(query: String) {
