@@ -2,11 +2,13 @@ package com.example.superheroes_app_rc.activities
 
 import android.os.Bundle
 import android.view.Menu
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.superheroes_app_rc.R
 import com.example.superheroes_app_rc.adapters.SuperheroAdapter
+import com.example.superheroes_app_rc.data.Superhero
 import com.example.superheroes_app_rc.data.SuperheroApiService
 import com.example.superheroes_app_rc.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
@@ -20,14 +22,20 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
 
     lateinit var adapter: SuperheroAdapter
+    // Declaramos la variable
+    lateinit var superheroList: List<Superhero>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        // Inicializamos la variable
+        superheroList = emptyList()
 
-        adapter = SuperheroAdapter()
+        adapter = SuperheroAdapter(superheroList) { position ->
+            navigateToDetail(superheroList[position])
+        }
 
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = GridLayoutManager(this,2)
@@ -59,6 +67,10 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+    private fun navigateToDetail(superhero: Superhero) {
+        Toast.makeText(this, superhero.name, Toast.LENGTH_SHORT).show()
+    }
+
     private fun searchByName(query: String) {
         // LLamada en segundo plano
         CoroutineScope(Dispatchers.IO).launch {
@@ -67,7 +79,8 @@ class MainActivity : AppCompatActivity() {
                 val result = apiService.findSuperheroesByName(query)
 
                 runOnUiThread {
-                    adapter.updateData(result.results)
+                    superheroList = result.results
+                    adapter.updateData(superheroList)
                 }
                 // Log.i("HTTP", "${result.results}")
             } catch (e: Exception) {
